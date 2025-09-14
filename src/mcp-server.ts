@@ -363,7 +363,8 @@ export async function startHttpServer(port: number = 3000) {
     
     // Handle MCP endpoint - delegate to transport
     if (req.url === '/mcp') {
-      // Parse body for POST requests
+      // For Smithery compatibility, we need to handle the request properly
+      // The transport.handleRequest expects the body to be available as req.body
       if (req.method === 'POST') {
         let body = '';
         req.on('data', chunk => {
@@ -371,8 +372,9 @@ export async function startHttpServer(port: number = 3000) {
         });
         req.on('end', async () => {
           try {
-            const parsedBody = JSON.parse(body);
-            await transport.handleRequest(req, res, parsedBody);
+            // Attach the parsed body to the request object
+            (req as any).body = JSON.parse(body);
+            await transport.handleRequest(req, res, (req as any).body);
           } catch (error) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
@@ -386,8 +388,8 @@ export async function startHttpServer(port: number = 3000) {
           }
         });
       } else {
-        // GET or DELETE requests
-        await transport.handleRequest(req, res);
+        // GET or DELETE requests don't have body
+        await transport.handleRequest(req, res, undefined);
       }
       return;
     }
