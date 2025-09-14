@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+.smithery/
 
 # Environment files
 .env
@@ -46,3 +47,4 @@ local-files/
 
 # Claude folder
 .claude/
+CLAUDE.md
