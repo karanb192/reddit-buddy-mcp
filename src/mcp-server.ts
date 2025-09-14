@@ -312,10 +312,10 @@ export async function startStdioServer() {
 export async function startHttpServer(port: number = 3000) {
   const { server, cacheManager } = await createMCPServer();
   
-  // Create transport - stateless mode for simpler setup
+  // Create transport with session management for Smithery
   const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: undefined, // Stateless mode - no session management
-    enableJsonResponse: false // Use SSE for notifications
+    sessionIdGenerator: () => `session-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+    enableJsonResponse: true // Enable JSON responses for better compatibility
   });
   
   // Connect MCP server to transport
